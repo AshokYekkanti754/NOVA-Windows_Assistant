@@ -1,0 +1,59 @@
+[project]
+name = "nova"
+version = "0.0.1"
+description = "NOVA — a modular, open-source, AI-powered Windows voice assistant"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=2.2.6",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+# Milestone 1: mic capture, wake word, VAD
+audio = [
+    "sounddevice>=0.4.6",
+    "numpy>=1.24",
+    "openwakeword>=0.6.0",
+    "onnxruntime>=1.16",
+    "torch>=2.1",     
+    "torchaudio>=2.1",     # required by Silero VAD (CPU build is fine)
+]
+# Milestone 2: speech-to-text
+stt = [
+    "faster-whisper>=1.0.0",
+]
+# Milestone 3-4: LLM brain, agent framework, memory/RAG
+brain = [
+    "langchain>=0.2.0",
+    "chromadb>=0.5.0",
+    "sentence-transformers>=2.7.0",
+    "ollama>=0.2.0",        # Python client for a locally-running Ollama server
+]
+# Milestone 5: Windows tool automation
+windows = [
+    "pyautogui>=0.9.54",
+    "pywinauto>=0.6.8; sys_platform == 'win32'",
+]
+# Milestone 6: browser automation
+browser = [
+    "playwright>=1.44",
+]
+# Milestone 7: text-to-speech
+tts = [
+    "piper-tts>=1.2.0",
+]
+# Dev / testing (all milestones)
+dev = [
+    "pytest>=8.0",
+]
+# Everything at once, for the fully integrated Milestone 8 build
+all = [
+    "nova[audio,stt,brain,windows,browser,tts,dev]",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["nova"]

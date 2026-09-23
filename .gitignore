@@ -1,0 +1,88 @@
+# ============================================================
+# NOVA-Assistant — .gitignore
+# Python 3.10+ project managed with uv (pyproject.toml + uv.lock)
+# ============================================================
+
+# ---------- Bytecode / caches ----------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# ---------- Virtual environments ----------
+.venv/
+venv/
+env/
+ENV/
+
+# uv cache (uv.lock itself IS committed — it pins exact deps)
+.uv-cache/
+
+# ---------- Test / tooling caches ----------
+.pytest_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.tox/
+.nox/
+.hypothesis/
+.mypy_cache/
+.ruff_cache/
+.pytype/
+
+# ---------- Distribution / packaging ----------
+build/
+dist/
+*.egg-info/
+.eggs/
+wheels/
+
+# ---------- Runtime artifacts ----------
+# Logs: ignore generated logs but keep the folder via .gitkeep
+logs/*
+!logs/.gitkeep
+*.log
+
+# ChromaDB / vector-store persistence (config: brain.memory.persist_directory)
+data/
+
+# Local model weights & downloaded voices (openWakeWord, Piper, Whisper)
+models/
+*.onnx
+*.pth
+*.tflite
+
+# Captured / synthesized audio clips
+recordings/
+*.wav
+*.mp3
+*.flac
+
+# ---------- Secrets / environment ----------
+.env
+.env.*
+*.env
+secrets.yaml
+*.key
+
+# ---------- Jupyter ----------
+.ipynb_checkpoints/
+
+# ---------- IDEs ----------
+.vscode/
+.idea/
+
+# ---------- OS ----------
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+~$*
+*.tmp
+# macOS
+.DS_Store
+._*
+# Linux
+*~

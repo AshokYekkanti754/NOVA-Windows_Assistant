@@ -1,0 +1,67 @@
+# NOVA — central configuration
+# All pipeline stages read their settings from here via nova.config.loader.get_config()
+
+app:
+  name: "NOVA"
+  version: "0.0.1"
+  wake_phrase: "hey_jarvis"
+
+audio:
+  sample_rate: 16000        # Hz — required by openWakeWord, Silero VAD, and Whisper
+  channels: 1
+  frame_ms: 32             # size of each audio frame pulled from the mic
+  input_device_index: null  # null = system default input device; set an int to pin a specific mic
+  output_device_index: null # null = system default output device (speakers)
+
+wake_word:
+  engine: "openwakeword"
+  model_name: "hey_jarvis"  # placeholder until a custom "hey_nova" model is trained
+  threshold: 0.5
+
+vad:
+  engine: "silero"
+  min_silence_ms: 700       # silence duration that ends an utterance
+  min_speech_ms: 250        # minimum speech duration to count as a real utterance (filters clicks/pops)
+
+stt:
+  engine: "faster-whisper"
+  model_size: "small"       # tiny | base | small | medium | large-v3
+  device: "cpu"              # cpu | cuda
+  compute_type: "int8"       # int8 is fastest on CPU
+
+brain:
+  llm:
+    provider: "ollama"
+    model: "llama3.1"
+    base_url: "http://localhost:11434"
+    temperature: 0.3
+  memory:
+    vector_store: "chromadb"
+    persist_directory: "./data/chroma"
+    embedding_model: "sentence-transformers/all-MiniLM-L6-v2"
+
+tools:
+  windows:
+    enabled: true
+    allow_list:              # only these action *categories* run without confirmation (Milestone 5 will enforce this)
+      - open_app
+      - close_app
+      - screenshot
+      - volume_control
+    require_confirmation:    # these always ask "are you sure?" first
+      - file_delete
+      - shutdown
+  browser:
+    enabled: true
+    headless: false
+
+tts:
+  engine: "piper"
+  voice: "en_US-lessac-medium"
+  speaking_rate: 1.0
+
+logging:
+  level: "INFO"              # DEBUG | INFO | WARNING | ERROR
+  log_dir: "./logs"
+  log_to_console: true
+  log_to_file: true
