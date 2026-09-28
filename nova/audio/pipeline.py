@@ -113,6 +113,7 @@ class AudioPipeline:
 
                         self.state = PipelineState.LISTENING
                         segmenter.reset()
+                        self.wake_word.reset()
 
                 # ---------------------------------------------
                 # LISTENING: collecting speech

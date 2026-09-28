@@ -9,7 +9,7 @@ app:
 audio:
   sample_rate: 16000        # Hz — required by openWakeWord, Silero VAD, and Whisper
   channels: 1
-  frame_ms: 32             # size of each audio frame pulled from the mic
+  frame_ms: 32              # size of each audio frame pulled from the mic
   input_device_index: null  # null = system default input device; set an int to pin a specific mic
   output_device_index: null # null = system default output device (speakers)
 
@@ -32,12 +32,14 @@ stt:
 brain:
   llm:
     provider: "ollama"
-    model: "llama3.1"
+    model: "lfm2.5"
     base_url: "http://localhost:11434"
     temperature: 0.3
   memory:
     vector_store: "chromadb"
     persist_directory: "./data/chroma"
+    short_term_db_path: "./data/short_term.db"   # current conversation, task/browser state
+    long_term_db_path: "./data/long_term.db"     # durable user preferences & facts
     embedding_model: "sentence-transformers/all-MiniLM-L6-v2"
 
 tools:

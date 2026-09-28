@@ -13,7 +13,9 @@ Starts the integrated audio pipeline:
         ↓
     Faster-Whisper
         ↓
-    Transcript
+    NovaBrain
+        ↓
+    Response / Tool Execution
 """
 
 from __future__ import annotations
@@ -24,6 +26,7 @@ import types
 
 from nova.audio.pipeline import AudioPipeline
 from nova.audio.transcriber import Transcriber
+from nova.brain.brain import NovaBrain
 from nova.config.loader import get_config
 from nova.logging_setup import setup_logging, get_logger
 
@@ -38,7 +41,6 @@ def _handle_shutdown_signal(
     global _shutdown_requested
 
     if _shutdown_requested:
-        # Second Ctrl+C: force an immediate exit (e.g. mid-transcription).
         raise KeyboardInterrupt
 
     _shutdown_requested = True
@@ -70,14 +72,14 @@ def main() -> int:
     log.info("Booting %s v%s", app_name, app_version)
     log.info("Wake phrase configured as: '%s'", wake_phrase)
 
-    # =========================================================
     # 5. Create the Faster-Whisper transcriber
-    # =========================================================
     transcriber = Transcriber(config=cfg)
 
-    # =========================================================
-    # 6. Handle completed speech from AudioPipeline
-    # =========================================================
+    # 6. Create NOVA's brain
+    brain = NovaBrain()
+    session_id = "live-session"
+
+    # 7. Handle completed speech from AudioPipeline
     def handle_utterance(audio):
         log.info(
             "Transcribing %.2f seconds of audio...",
@@ -89,28 +91,33 @@ def main() -> int:
             sample_rate=cfg["audio"]["sample_rate"],
         )
 
-        if transcript:
-            print(f"\n🗣️ You: {transcript}")
-            log.info("NOVA heard: %s", transcript)
-        else:
+        if not transcript:
             log.info("No speech detected in utterance.")
+            return
 
-    # =========================================================
-    # 7. Create the complete audio pipeline
-    # =========================================================
+        print(f"\n🗣️ You: {transcript}")
+        log.info("NOVA heard: %s", transcript)
+
+        # Send the transcript to NovaBrain
+        response = brain.think(
+            session_id=session_id,
+            user_text=transcript,
+        )
+
+        print(f"🤖 NOVA: {response}")
+
+    # 8. Create the complete audio pipeline
     pipeline = AudioPipeline(
         on_utterance=handle_utterance
     )
 
     log.info("%s ready.", app_name)
 
-    # =========================================================
-    # 8. Start listening
-    # =========================================================
+    # 9. Start listening
     try:
-        # Graceful shutdown: the signal handler above sets the flag, and the
-        # pipeline checks it between audio frames.
-        pipeline.run_forever(should_stop=lambda: _shutdown_requested)
+        pipeline.run_forever(
+            should_stop=lambda: _shutdown_requested
+        )
 
     except KeyboardInterrupt:
         log.info("Keyboard interrupt received.")
